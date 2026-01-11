@@ -251,7 +251,11 @@ func (s *UserService) WebvpnVerifyInit(sid string) (data webvpn.InitLoginReturn,
 func (s *UserService) WebvpnVerify(sid string, salt string, pwd string, execution string, cookie string, captcha string) (token string, code string, err error) {
 	err = webvpn.Login(sid, salt, pwd, execution, cookie, captcha)
 	if err != nil {
-		return "", "", errors.New("统一身份认证失败Orz")
+		if err == webvpn.ErrSMSCodeNeeded {
+			return "", "", webvpn.ErrSMSCodeNeeded
+		} else {
+			return "", "", errors.New("统一身份认证失败Orz")
+		}
 	}
 	//生成验证码
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))

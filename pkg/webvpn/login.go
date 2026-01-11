@@ -16,6 +16,7 @@ import (
 )
 
 var ErrCookieInvalid = errors.New("未通过统一身份认证Orz")
+var ErrSMSCodeNeeded = errors.New("webvpn登陆需要手机验证码Orz")
 
 // 登录初始化返回结构
 type InitLoginReturn struct {
@@ -57,6 +58,9 @@ func Login(username string, salt string, password string, execution string, cook
 	}, map[string]string{"Cookie": cookie})
 	if err != nil || res.Code != 200 || strings.Contains(res.Text, "帐号登录或动态码登录") {
 		return errors.New("webvpn login error")
+	}
+	if strings.Contains(res.Text, "短信验证码") {
+		return ErrSMSCodeNeeded
 	}
 	return nil
 }
